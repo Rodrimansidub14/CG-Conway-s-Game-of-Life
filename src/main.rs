@@ -10,11 +10,9 @@ const HEIGHT: usize = 200; // Altura de la cuadrícula para mostrar la evolució
 const WINDOW_WIDTH: usize = 800; // Ancho de la ventana
 const WINDOW_HEIGHT: usize = 600; // Altura de la ventana
 
-// Define los colores de inicio y fin para los gradientes
-const COLOR_START_1: (u8, u8, u8) = (0, 255, 0); // Verde
-const COLOR_END_1: (u8, u8, u8) = (0, 0, 255); // Azul
-const COLOR_START_2: (u8, u8, u8) = (0, 0, 255); // Azul
-const COLOR_END_2: (u8, u8, u8) = (128, 0, 128); // Morado
+// Define los colores de inicio y fin para el gradiente blanco a negro
+const COLOR_START: (u8, u8, u8) = (255, 255, 255); // Blanco
+const COLOR_END: (u8, u8, u8) = (0, 0, 0); // Negro
 
 // Interpola entre dos colores basados en una proporción
 fn interpolate_color(start: (u8, u8, u8), end: (u8, u8, u8), t: f32) -> u32 {
@@ -58,11 +56,7 @@ fn update_grid(grid: &mut Vec<Vec<usize>>, colors: &mut Vec<Vec<u32>>, current_r
             grid[current_row + 1][x] = new_state;
             if new_state == 1 {
                 let t = (current_row + 1) as f32 / HEIGHT as f32;
-                colors[current_row + 1][x] = if t < 0.5 {
-                    interpolate_color(COLOR_START_1, COLOR_END_1, t * 2.0)
-                } else {
-                    interpolate_color(COLOR_START_2, COLOR_END_2, (t - 0.5) * 2.0)
-                };
+                colors[current_row + 1][x] = interpolate_color(COLOR_START, COLOR_END, t);
             }
         }
     }
@@ -97,12 +91,7 @@ fn conway_rules(grid: &Vec<Vec<usize>>, new_grid: &mut Vec<Vec<usize>>, colors: 
             new_grid[y][x] = match (grid[y][x], live_neighbors) {
                 (1, 2) | (1, 3) => 1,
                 (0, 3) => {
-                    let t = y as f32 / HEIGHT as f32;
-                    colors[y][x] = if t < 0.5 {
-                        interpolate_color(COLOR_START_1, COLOR_END_1, t * 2.0)
-                    } else {
-                        interpolate_color(COLOR_START_2, COLOR_END_2, (t - 0.5) * 2.0)
-                    };
+                    colors[y][x] = 0xFFFFFF; // Blanco para las nuevas células vivas
                     1
                 },
                 _ => 0,
@@ -111,17 +100,22 @@ fn conway_rules(grid: &Vec<Vec<usize>>, new_grid: &mut Vec<Vec<usize>>, colors: 
     }
 }
 
+// Generar colores brillantes aleatorios
+fn generate_random_color(rng: &mut rand::rngs::ThreadRng) -> u32 {
+    let r = rng.gen_range(128..256) as u32;
+    let g = rng.gen_range(128..256) as u32;
+    let b = rng.gen_range(128..256) as u32;
+    (r << 16) | (g << 8) | b
+}
+
 fn insert_pattern(grid: &mut Vec<Vec<usize>>, colors: &mut Vec<Vec<u32>>, pattern: &[(usize, usize)], offset_x: usize, offset_y: usize) {
+    let mut rng = rand::thread_rng();
+    let color = generate_random_color(&mut rng);
     for &(x, y) in pattern.iter() {
         let nx = (offset_x + x) % WIDTH;
         let ny = (offset_y + y) % HEIGHT;
         grid[ny][nx] = 1;
-        let t = ny as f32 / HEIGHT as f32;
-        colors[ny][nx] = if t < 0.5 {
-            interpolate_color(COLOR_START_1, COLOR_END_1, t * 2.0)
-        } else {
-            interpolate_color(COLOR_START_2, COLOR_END_2, (t - 0.5) * 2.0)
-        };
+        colors[ny][nx] = color;
     }
 }
 
