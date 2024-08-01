@@ -1,7 +1,7 @@
 # Conway's Game of Life with Wolfram's Rule 30
-Rodrigo Mansilla Dubon
-22611
-Universidad del Valle de Guatemala
+#### Rodrigo Mansilla Dubon
+#### 22611
+#### Universidad del Valle de Guatemala
 
 This project implements Conway's Game of Life combined with Wolfram's Rule 30. The cells initially follow Rule 30 and display a gradient from white to black. When the cells transition to following Conway's Game of Life, they exhibit an explosion of colors in the form of pulsar patterns and cellular growth.
 
